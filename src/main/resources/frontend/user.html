@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User home</title>
+    <link rel="stylesheet" href="styles/user.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <script>
+        const XHR = new XMLHttpRequest();
+
+        XHR.addEventListener("error", function(event) {
+            window.location.href = "index.html"
+        });
+
+        const url = `http://localhost:8080/oauth/check_token?token=${localStorage.getItem("access_token")}`;
+        XHR.open("POST", url);
+        XHR.send();
+
+        const xml = new XMLHttpRequest();
+        
+        xml.addEventListener("load", function(event) {
+            const response = JSON.parse(event.target.responseText);
+
+            document.getElementById("name").innerHTML = response.fullName;
+            document.getElementById("iban").innerHTML += " " + response.iban;
+            document.getElementById("balance").innerHTML += " " + response.deposit;
+
+            localStorage.setItem("name", response.fullName);
+        });
+
+        const hrl = `http://localhost:8080/user/profile`;
+        xml.open("GET", hrl);
+        const bearer = "Bearer " + localStorage.getItem("access_token");
+        xml.setRequestHeader("Authorization", bearer);
+        xml.send();
+    </script>
+</head>
+<body>
+    <div class="user">
+        <h1>Welcome back,</h1>
+        <h2 id="name"></h2>
+
+        <div class="info-div">
+            <p id="iban">
+                Your IBAN is
+            </p>
+            <p id="balance">
+                Your current balance is
+            </p>
+        </div>
+
+        <div class="operations-div">
+            <p>
+                Please select one of the following:
+            </p>
+
+            <div>
+                <button class="btn" onclick="historyFunc()">See transaction history</button>
+                <button class="btn" onclick="clearDiv()">Clear transactions</button>
+                <button class="btn" onclick="makeFunc()">Make a transaction</button>
+            </div>
+
+            <div id="container">
+
+            </div>
+
+            <div class="logout-div">
+                <button class="btn" onclick="logoutFunc()">Log out</button>
+            </div>
+        </div>
+    <script type="text/javascript" src="src/user.js"></script>
+</body>
+</html>
